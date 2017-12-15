@@ -6,7 +6,7 @@
 /*   By: acauchy <acauchy@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/13 10:36:33 by acauchy           #+#    #+#             */
-/*   Updated: 2017/12/13 18:21:36 by acauchy          ###   ########.fr       */
+/*   Updated: 2017/12/15 12:06:55 by acauchy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,17 +49,22 @@ static char		*mode_to_str(mode_t file_mode)
 	if (!(str = (char*)malloc(11)))
 		return (NULL);
 	str[0] = get_filetype(file_mode);
-	str[1] = file_mode & S_IRUSR? 'r' : '-';
-	str[2] = file_mode & S_IWUSR? 'w' : '-';
-	str[3] = file_mode & S_IXUSR? 'x' : '-';
-	str[4] = file_mode & S_IRGRP? 'r' : '-';
-	str[5] = file_mode & S_IWGRP? 'w' : '-';
-	str[6] = file_mode & S_IXGRP? 'x' : '-';
-	str[7] = file_mode & S_IROTH? 'r' : '-';
-	str[8] = file_mode & S_IWOTH? 'w' : '-';
-	str[9] = file_mode & S_IXOTH? 'x' : '-';
+	str[1] = file_mode & S_IRUSR ? 'r' : '-';
+	str[2] = file_mode & S_IWUSR ? 'w' : '-';
+	str[3] = file_mode & S_IXUSR ? 'x' : '-';
+	if (file_mode & S_ISUID)
+		str[3] = str[3] == 'x' ? 's' : 'S';
+	str[4] = file_mode & S_IRGRP ? 'r' : '-';
+	str[5] = file_mode & S_IWGRP ? 'w' : '-';
+	str[6] = file_mode & S_IXGRP ? 'x' : '-';
+	if (file_mode & S_ISGID)
+		str[6] = str[6] == 'x' ? 's' : 'S';
+	str[7] = file_mode & S_IROTH ? 'r' : '-';
+	str[8] = file_mode & S_IWOTH ? 'w' : '-';
+	str[9] = file_mode & S_IXOTH ? 'x' : '-';
+	if (file_mode & S_ISVTX)
+		str[9] = str[9] == 'x' ? 't' : 'T';
 	str[10] = '\0';
-	// TODO : GERER LES STICKY BITS
 	return (str);
 }
 
@@ -101,7 +106,7 @@ int				main(int argc, char **argv)
 			ft_putchar('\n');
 
 			ft_putstr("owner name : ");
-			ft_putstr(getpwuid(file_uid)->pw_name);
+			ft_putstr(getpwuid(file_uid) ? getpwuid(file_uid)->pw_name : "(null)");
 			ft_putchar('\n');
 
 			ft_putstr("gid : ");
@@ -109,7 +114,7 @@ int				main(int argc, char **argv)
 			ft_putchar('\n');
 
 			ft_putstr("group name : ");
-			ft_putstr(getgrgid(file_gid)->gr_name);
+			ft_putstr(getgrgid(file_gid) ? getgrgid(file_gid)->gr_name : "(null)");
 			ft_putchar('\n');
 		
 			ft_putstr("size : ");
