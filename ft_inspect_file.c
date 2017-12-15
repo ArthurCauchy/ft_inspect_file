@@ -6,7 +6,7 @@
 /*   By: acauchy <acauchy@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/13 10:36:33 by acauchy           #+#    #+#             */
-/*   Updated: 2017/12/15 12:06:55 by acauchy          ###   ########.fr       */
+/*   Updated: 2017/12/15 13:09:44 by acauchy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ static char		*mode_to_str(mode_t file_mode)
 int				main(int argc, char **argv)
 {
 	struct stat		file_info;
+	dev_t			file_rdev;
 	mode_t			file_mode;
 	nlink_t			file_nlink;
 	uid_t			file_uid;
@@ -87,6 +88,7 @@ int				main(int argc, char **argv)
 	{
 		if (stat(argv[1], &file_info) >= 0)
 		{
+			file_rdev = file_info.st_rdev;
 			file_mode = file_info.st_mode;
 			file_nlink = file_info.st_nlink;
 			file_uid = file_info.st_uid;
@@ -94,6 +96,14 @@ int				main(int argc, char **argv)
 			file_size = file_info.st_size;
 			file_mtimespec = file_info.st_mtimespec;
 
+			ft_putstr("rdev major : ");
+			ft_putnbr(major(file_rdev));
+			ft_putchar('\n');
+
+			ft_putstr("rdev major : ");
+			ft_putnbr(minor(file_rdev));
+			ft_putchar('\n');
+			
 			ft_putstr("mode : ");
 			ft_putendl(mode_to_str(file_mode));
 
@@ -119,6 +129,12 @@ int				main(int argc, char **argv)
 		
 			ft_putstr("size : ");
 			ft_putnbr(file_size);
+			ft_putchar('\n');
+
+			ft_putstr("rdev major, minor : "); // a faire a la place de size si filetype = c ou b
+			ft_putnbr(major(file_rdev));
+			ft_putstr(", ");
+			ft_putnbr(minor(file_rdev));
 			ft_putchar('\n');
 
 			ft_putstr("mtimespec : ");
