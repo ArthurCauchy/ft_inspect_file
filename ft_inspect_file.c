@@ -6,18 +6,21 @@
 /*   By: acauchy <acauchy@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/13 10:36:33 by acauchy           #+#    #+#             */
-/*   Updated: 2017/12/15 13:09:44 by acauchy          ###   ########.fr       */
+/*   Updated: 2017/12/16 16:53:17 by arthur           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/sysmacros.h>
 #include <pwd.h>
 #include <grp.h>
 #include <errno.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <limits.h>
 #include "libft.h"
 
 static char		get_filetype(mode_t file_mode)
@@ -68,8 +71,25 @@ static char		*mode_to_str(mode_t file_mode)
 	return (str);
 }
 
+static char		*symlink_target_name(char *link_path, off_t file_size)
+{
+	size_t	buffer_size;
+	char	*target_path;
+	ssize_t	read_size;
+
+	buffer_size = (file_size > 0 ? file_size : PATH_MAX) + 1;
+	if (!(target_path = (char*)malloc(buffer_size)))
+		return (NULL);
+	read_size = readlink(link_path, target_path, buffer_size);
+	if (read_size < 0)
+		return (NULL);
+	target_path[read_size] = '\0';
+	return (target_path);
+}
+
 int				main(int argc, char **argv)
 {
+	char			*file_path;
 	struct stat		file_info;
 	dev_t			file_rdev;
 	mode_t			file_mode;
@@ -86,7 +106,8 @@ int				main(int argc, char **argv)
 	}
 	else
 	{
-		if (stat(argv[1], &file_info) >= 0)
+		file_path = argv[1];
+		if (lstat(argv[1], &file_info) >= 0)
 		{
 			file_rdev = file_info.st_rdev;
 			file_mode = file_info.st_mode;
@@ -94,15 +115,17 @@ int				main(int argc, char **argv)
 			file_uid = file_info.st_uid;
 			file_gid = file_info.st_gid;
 			file_size = file_info.st_size;
-			file_mtimespec = file_info.st_mtimespec;
+			file_mtimespec = file_info.st_mtim; // st_mtimespec
 
-			ft_putstr("rdev major : ");
-			ft_putnbr(major(file_rdev));
-			ft_putchar('\n');
+			ft_putstr(file_path);
+			ft_putendl(":\n");
 
-			ft_putstr("rdev major : ");
-			ft_putnbr(minor(file_rdev));
-			ft_putchar('\n');
+			if (get_filetype(file_mode) == 'l') // TODO a refaire
+			{
+				char *symlink_target = symlink_target_name(file_path, file_size); // TODO check not null
+				ft_putstr("symlink target : ");
+				ft_putendl(symlink_target);
+			}
 			
 			ft_putstr("mode : ");
 			ft_putendl(mode_to_str(file_mode));
