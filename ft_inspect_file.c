@@ -6,13 +6,12 @@
 /*   By: acauchy <acauchy@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/13 10:36:33 by acauchy           #+#    #+#             */
-/*   Updated: 2017/12/16 16:53:17 by arthur           ###   ########.fr       */
+/*   Updated: 2018/01/13 14:59:37 by acauchy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/sysmacros.h>
 #include <pwd.h>
 #include <grp.h>
 #include <errno.h>
@@ -97,6 +96,7 @@ int				main(int argc, char **argv)
 	uid_t			file_uid;
 	gid_t			file_gid;
 	off_t			file_size;
+	blkcnt_t		file_blocks;
 	struct timespec	file_mtimespec;
 
 	if (argc != 2)
@@ -115,7 +115,8 @@ int				main(int argc, char **argv)
 			file_uid = file_info.st_uid;
 			file_gid = file_info.st_gid;
 			file_size = file_info.st_size;
-			file_mtimespec = file_info.st_mtim; // st_mtimespec
+			file_blocks = file_info.st_blocks;
+			file_mtimespec = file_info.st_mtimespec; // MAC : st_mtimespec | LINUX : st_mtim
 
 			ft_putstr(file_path);
 			ft_putendl(":\n");
@@ -158,6 +159,10 @@ int				main(int argc, char **argv)
 			ft_putnbr(major(file_rdev));
 			ft_putstr(", ");
 			ft_putnbr(minor(file_rdev));
+			ft_putchar('\n');
+
+			ft_putstr("blocks : ");
+			ft_putnbr(file_blocks);
 			ft_putchar('\n');
 
 			ft_putstr("mtimespec : ");
